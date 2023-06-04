@@ -1,0 +1,9 @@
+---
+- name: Deploy cluster
+  hosts: all
+  remote_user: root
+  gather_facts: true
+
+  tasks:
+    - name: Ping to a host
+      ping:
