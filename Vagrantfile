@@ -18,14 +18,13 @@ Vagrant.configure("2") do |config|
     # Setup hostname
     node.vm.hostname = master_hostname
 
-    # Adding SSH keys from host and setting up node_type env
+    # Adding SSH keys from host and setting up node_type file
     node.vm.provision "shell" do |s|
-      rc_string = "'export NODE_TYPE=#{node_type}'"
       ssh_pub_key = File.readlines("#{Dir.home}/.ssh/ansible_rsa.pub").first.strip
       s.inline = <<-SHELL
         echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
         echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
-        echo #{rc_string} >> /root/.bashrc
+        echo #{node_type} > /root/.nodetype
       SHELL
     end
 
@@ -43,13 +42,6 @@ Vagrant.configure("2") do |config|
       vb.name = master_hostname
     end
 
-  # Run ansible provisioning
-    node.vm.provision "ansible" do |ansible|
-      ansible.become = true
-      ansible.become_user = "root"
-      ansible.verbose = "v"
-      ansible.playbook = "ansible/deploy-cluster.yml"
-    end
   end
 
   (1..slaves_count).each do |i|
@@ -61,14 +53,13 @@ Vagrant.configure("2") do |config|
 
       node.vm.hostname = slave_hostname
 
-      # Adding SSH keys from host and setting up node_type env
+      # Adding SSH keys from host and setting up node_type file
       node.vm.provision "shell" do |s|
-        rc_string = "'export NODE_TYPE=#{node_type}'"
         ssh_pub_key = File.readlines("#{Dir.home}/.ssh/ansible_rsa.pub").first.strip
         s.inline = <<-SHELL
           echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
           echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
-          echo #{rc_string} >> /root/.bashrc
+          echo #{node_type} >> /root/.nodetype
         SHELL
       end
 
@@ -89,4 +80,13 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  # Run ansible provisioning
+  config.vm.provision "ansible" do |ansible|
+    ansible.become = true
+    ansible.become_user = "root"
+    ansible.force_remote_user = true
+    ansible.verbose = "v"
+    ansible.compability_mode = "auto"
+    ansible.playbook = "ansible/deploy-cluster.yml"
+  end
 end
