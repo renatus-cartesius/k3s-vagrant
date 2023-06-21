@@ -22,8 +22,8 @@ Vagrant.configure("2") do |config|
     node.vm.provision "shell" do |s|
       ssh_pub_key = File.readlines("#{Dir.home}/.ssh/ansible_rsa.pub").first.strip
       s.inline = <<-SHELL
-        echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
-        echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
+        echo #{ssh_pub_key} > /home/vagrant/.ssh/authorized_keys
+        echo #{ssh_pub_key} > /root/.ssh/authorized_keys
         echo #{node_type} > /root/.nodetype
       SHELL
     end
@@ -57,9 +57,9 @@ Vagrant.configure("2") do |config|
       node.vm.provision "shell" do |s|
         ssh_pub_key = File.readlines("#{Dir.home}/.ssh/ansible_rsa.pub").first.strip
         s.inline = <<-SHELL
-          echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
-          echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
-          echo #{node_type} >> /root/.nodetype
+          echo #{ssh_pub_key} > /home/vagrant/.ssh/authorized_keys
+          echo #{ssh_pub_key} > /root/.ssh/authorized_keys
+          echo #{node_type} > /root/.nodetype
         SHELL
       end
 
@@ -86,7 +86,7 @@ Vagrant.configure("2") do |config|
     ansible.become_user = "root"
     ansible.force_remote_user = true
     ansible.verbose = "v"
-    ansible.compability_mode = "auto"
+    ansible.compatibility_mode = "2.0"
     ansible.playbook = "ansible/deploy-cluster.yml"
   end
 end
