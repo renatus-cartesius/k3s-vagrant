@@ -2,7 +2,14 @@
 - name: Deploy cluster
   hosts: all
   gather_facts: true
+  become: true
+  become_user: root
 
   tasks:
-    - name: Ping a host
-      ping:
+    - name: Get some info
+      shell: 'whoami && pwd && sudo cat /root/.nodetype'
+      register: out
+      
+    - name: Print some info
+      debug:
+        var: out.stdout_lines
